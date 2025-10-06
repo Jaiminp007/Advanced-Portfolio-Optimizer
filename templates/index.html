@@ -421,7 +421,7 @@
                     </div>
                     <div>
                         <label class="block text-sm font-semibold mb-2">API Endpoint</label>
-                        <input type="text" id="apiEndpoint" value="http://localhost:5000" class="w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg border border-gray-600">
+                        <input type="text" id="apiEndpoint" class="w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg border border-gray-600" placeholder="https://your-domain.onrender.com">
                     </div>
                 </div>
             </div>
@@ -462,7 +462,7 @@
 
         // Global state
         const state = {
-            apiEndpoint: 'http://localhost:5000',
+            apiEndpoint: window.location.origin,
             currentResults: null,
             currentTickers: [],
             weightsChart: null,
@@ -571,7 +571,7 @@
             } catch (error) {
                 console.error('API Request Error:', error);
                 if (error.message.includes('Failed to fetch')) {
-                    throw new Error('Cannot connect to server. Make sure Flask backend is running on port 5000.');
+                    throw new Error('Cannot connect to the backend service. Please verify the server is running and reachable.');
                 }
                 throw error;
             }
@@ -1078,7 +1078,18 @@
         document.addEventListener('DOMContentLoaded', () => {
             lucide.createIcons();
             console.log('🚀 Advanced Portfolio Optimizer initialized');
-            console.log('📊 Make sure Flask backend is running on http://localhost:5000');
+
+            const apiEndpointInput = document.getElementById('apiEndpoint');
+            if (apiEndpointInput) {
+                apiEndpointInput.value = state.apiEndpoint;
+                apiEndpointInput.addEventListener('change', () => {
+                    const value = apiEndpointInput.value.trim();
+                    state.apiEndpoint = value || window.location.origin;
+                    showNotification(`API endpoint set to ${state.apiEndpoint}`, 'info');
+                });
+            }
+
+            console.log(`🌐 API endpoint: ${state.apiEndpoint}`);
         });
     </script>
 

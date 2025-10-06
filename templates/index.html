@@ -1,0 +1,1086 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Advanced Portfolio Theory Optimizer</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Google Fonts - Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Lucide Icons CDN -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <!-- Chart.js for additional charts -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .gradient-bg {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+        .gradient-bg-alt {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        }
+        .gradient-bg-green {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        }
+        .card-shadow {
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+        }
+        .loading-spinner {
+            border: 4px solid rgba(99, 102, 241, 0.3);
+            border-radius: 50%;
+            border-top: 4px solid #6366f1;
+            width: 40px;
+            height: 40px;
+            animation: spin 0.8s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .tab-active {
+            border-bottom: 3px solid #6366f1;
+            color: #6366f1;
+        }
+        .slider {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 100%;
+            height: 6px;
+            border-radius: 5px;
+            background: #374151;
+            outline: none;
+        }
+        .slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+        .slider::-moz-range-thumb {
+            width: 18px;
+            height: 18px;
+            border-radius: 50%;
+            background: #6366f1;
+            cursor: pointer;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 1000;
+            animation: slideIn 0.3s ease-out;
+        }
+        @keyframes slideIn {
+            from { transform: translateX(400px); }
+            to { transform: translateX(0); }
+        }
+    </style>
+</head>
+<body class="bg-gray-900 text-gray-200 min-h-screen">
+    
+    <!-- Notifications Container -->
+    <div id="notificationsContainer"></div>
+    
+    <!-- Header -->
+    <header class="gradient-bg py-8 px-4 shadow-xl">
+        <div class="container mx-auto max-w-7xl">
+            <div class="flex items-center justify-between flex-wrap gap-4">
+                <div>
+                    <h1 class="text-4xl md:text-5xl font-bold text-white mb-2 flex items-center">
+                        <i data-lucide="trending-up" class="inline-block w-10 h-10 mr-3"></i>
+                        Advanced Portfolio Optimizer
+                    </h1>
+                    <p class="text-purple-100 text-sm md:text-base">Modern Portfolio Theory with Advanced Analytics & Multiple Optimization Strategies</p>
+                </div>
+                <div class="flex gap-3">
+                    <button id="historyBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-2">
+                        <i data-lucide="history" class="w-5 h-5"></i>
+                        <span class="hidden sm:inline">History</span>
+                    </button>
+                    <button id="settingsBtn" class="bg-white bg-opacity-20 hover:bg-opacity-30 text-white px-4 py-2 rounded-lg transition duration-200 flex items-center gap-2">
+                        <i data-lucide="settings" class="w-5 h-5"></i>
+                        <span class="hidden sm:inline">Settings</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main class="container mx-auto max-w-7xl px-4 py-8">
+        
+        <!-- Tabs Navigation -->
+        <div class="bg-gray-800 rounded-t-lg p-4 mb-0 card-shadow">
+            <div class="flex gap-6 overflow-x-auto">
+                <button class="tab-btn tab-active px-4 py-2 font-semibold whitespace-nowrap transition" data-tab="optimizer">
+                    <i data-lucide="calculator" class="inline w-4 h-4 mr-2"></i>Optimizer
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold whitespace-nowrap transition text-gray-400 hover:text-gray-200" data-tab="comparison">
+                    <i data-lucide="git-compare" class="inline w-4 h-4 mr-2"></i>Portfolio Comparison
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold whitespace-nowrap transition text-gray-400 hover:text-gray-200" data-tab="analytics">
+                    <i data-lucide="bar-chart-2" class="inline w-4 h-4 mr-2"></i>Risk Analytics
+                </button>
+                <button class="tab-btn px-4 py-2 font-semibold whitespace-nowrap transition text-gray-400 hover:text-gray-200" data-tab="correlation">
+                    <i data-lucide="network" class="inline w-4 h-4 mr-2"></i>Correlation Matrix
+                </button>
+            </div>
+        </div>
+
+        <!-- Tab Content Container -->
+        <div class="tab-content">
+            
+            <!-- Optimizer Tab -->
+            <div id="optimizer-tab" class="tab-pane active">
+                
+                <!-- Input Section -->
+                <div class="bg-gray-800 rounded-b-lg p-6 mb-8 card-shadow">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div class="md:col-span-2">
+                            <label for="tickerInput" class="block text-sm font-semibold mb-2 text-gray-100">
+                                <i data-lucide="list" class="inline-block w-4 h-4 mr-1"></i>
+                                Stock Tickers (comma-separated)
+                            </label>
+                            <input 
+                                type="text" 
+                                id="tickerInput" 
+                                value="AAPL, MSFT, GOOG, AMZN, TSLA"
+                                class="w-full px-4 py-3 bg-gray-700 text-gray-100 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
+                                placeholder="e.g., AAPL, MSFT, GOOG"
+                            />
+                        </div>
+                        <div>
+                            <label for="strategySelect" class="block text-sm font-semibold mb-2 text-gray-100">
+                                <i data-lucide="target" class="inline-block w-4 h-4 mr-1"></i>
+                                Optimization Strategy
+                            </label>
+                            <select id="strategySelect" class="w-full px-4 py-3 bg-gray-700 text-gray-100 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="max_sharpe">Maximum Sharpe Ratio</option>
+                                <option value="min_volatility">Minimum Volatility</option>
+                                <option value="monte_carlo">Monte Carlo Best</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                        <div>
+                            <label for="riskFreeRate" class="block text-sm font-semibold mb-2 text-gray-100">
+                                Risk-Free Rate (%)
+                            </label>
+                            <input 
+                                type="number" 
+                                id="riskFreeRate" 
+                                value="2.0"
+                                step="0.1"
+                                class="w-full px-4 py-3 bg-gray-700 text-gray-100 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                        </div>
+                        <div>
+                            <label for="numSimulations" class="block text-sm font-semibold mb-2 text-gray-100">
+                                Monte Carlo Simulations
+                            </label>
+                            <input 
+                                type="number" 
+                                id="numSimulations" 
+                                value="10000"
+                                step="1000"
+                                class="w-full px-4 py-3 bg-gray-700 text-gray-100 rounded-lg border border-gray-600 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            />
+                        </div>
+                        <div class="flex items-end">
+                            <button 
+                                id="calculateBtn"
+                                class="w-full gradient-bg hover:opacity-90 text-white font-semibold px-6 py-3 rounded-lg transition duration-200 flex items-center justify-center gap-2 shadow-lg hover:shadow-xl"
+                            >
+                                <i data-lucide="play" class="w-5 h-5"></i>
+                                Optimize Portfolio
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div id="errorMessage" class="mt-3 text-red-400 text-sm bg-red-900 bg-opacity-30 border border-red-600 rounded-lg p-3 hidden flex items-center gap-2">
+                        <i data-lucide="alert-circle" class="w-5 h-5"></i>
+                        <span id="errorText"></span>
+                    </div>
+                </div>
+
+                <!-- Results Section -->
+                <div id="resultsSection" class="hidden fade-in">
+                    
+                    <!-- Key Metrics Cards -->
+                    <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+                        <div class="bg-gradient-to-br from-green-600 to-green-700 rounded-lg p-6 card-shadow text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm opacity-90">Expected Return</p>
+                                <i data-lucide="trending-up" class="w-5 h-5 opacity-75"></i>
+                            </div>
+                            <p id="metricReturn" class="text-3xl font-bold">--</p>
+                            <p class="text-xs opacity-75 mt-1">Annualized</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-yellow-600 to-orange-600 rounded-lg p-6 card-shadow text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm opacity-90">Volatility (Risk)</p>
+                                <i data-lucide="activity" class="w-5 h-5 opacity-75"></i>
+                            </div>
+                            <p id="metricVolatility" class="text-3xl font-bold">--</p>
+                            <p class="text-xs opacity-75 mt-1">Standard Deviation</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-blue-600 to-indigo-600 rounded-lg p-6 card-shadow text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm opacity-90">Sharpe Ratio</p>
+                                <i data-lucide="trophy" class="w-5 h-5 opacity-75"></i>
+                            </div>
+                            <p id="metricSharpe" class="text-3xl font-bold">--</p>
+                            <p class="text-xs opacity-75 mt-1">Risk-Adjusted Return</p>
+                        </div>
+                        
+                        <div class="bg-gradient-to-br from-purple-600 to-pink-600 rounded-lg p-6 card-shadow text-white">
+                            <div class="flex items-center justify-between mb-2">
+                                <p class="text-sm opacity-90">Strategy Used</p>
+                                <i data-lucide="target" class="w-5 h-5 opacity-75"></i>
+                            </div>
+                            <p id="metricStrategy" class="text-xl font-bold">--</p>
+                            <p class="text-xs opacity-75 mt-1">Optimization Method</p>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        
+                        <!-- Optimal Weights -->
+                        <div class="lg:col-span-1">
+                            <div class="bg-gray-800 rounded-lg p-6 card-shadow h-full">
+                                <h2 class="text-xl font-bold mb-4 text-purple-400 flex items-center">
+                                    <i data-lucide="pie-chart" class="w-6 h-6 mr-2"></i>
+                                    Optimal Allocation
+                                </h2>
+                                
+                                <div id="optimalWeights" class="space-y-3 mb-6">
+                                    <!-- Weights will be populated here -->
+                                </div>
+                                
+                                <div class="pt-4 border-t border-gray-700">
+                                    <canvas id="weightsChart" height="200"></canvas>
+                                </div>
+                                
+                                <button id="downloadBtn" class="w-full mt-4 bg-gray-700 hover:bg-gray-600 text-white px-4 py-2 rounded-lg transition flex items-center justify-center gap-2">
+                                    <i data-lucide="download" class="w-4 h-4"></i>
+                                    Export Results
+                                </button>
+                            </div>
+                        </div>
+                        
+                        <!-- Efficient Frontier Chart -->
+                        <div class="lg:col-span-2">
+                            <div class="bg-gray-800 rounded-lg p-6 card-shadow">
+                                <div class="flex items-center justify-between mb-4">
+                                    <h2 class="text-xl font-bold text-purple-400 flex items-center">
+                                        <i data-lucide="bar-chart-3" class="w-6 h-6 mr-2"></i>
+                                        Efficient Frontier
+                                    </h2>
+                                    <button id="downloadChartBtn" class="bg-purple-600 hover:bg-purple-700 text-white px-4 py-2 rounded-lg transition flex items-center gap-2 text-sm hidden">
+                                        <i data-lucide="download" class="w-4 h-4"></i>
+                                        Download Chart
+                                    </button>
+                                </div>
+                                <div id="chartContainer" class="w-full flex items-center justify-center bg-gray-900 rounded-lg border border-gray-700" style="height: 500px;">
+                                    <img id="chartImage" alt="Efficient frontier visualization" class="max-h-full max-w-full object-contain hidden" />
+                                    <p id="chartPlaceholder" class="text-gray-500 text-sm">Run an optimization to generate visualization.</p>
+                                </div>
+                            </div>
+                        </div>
+                        
+                    </div>
+                </div>
+            </div>
+
+            <!-- Portfolio Comparison Tab -->
+            <div id="comparison-tab" class="tab-pane hidden">
+                <div class="bg-gray-800 rounded-b-lg p-6 card-shadow">
+                    <h2 class="text-2xl font-bold mb-6 text-purple-400">Compare Multiple Strategies</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                        <div class="bg-gray-700 rounded-lg p-6 border-2 border-purple-500">
+                            <h3 class="font-bold text-lg mb-3 text-purple-300">Max Sharpe Ratio</h3>
+                            <div id="comparisonMaxSharpe" class="space-y-2 text-sm">
+                                <p>Click "Compare All" to see results</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-6 border-2 border-yellow-500">
+                            <h3 class="font-bold text-lg mb-3 text-yellow-300">Min Volatility</h3>
+                            <div id="comparisonMinVol" class="space-y-2 text-sm">
+                                <p>Click "Compare All" to see results</p>
+                            </div>
+                        </div>
+                        <div class="bg-gray-700 rounded-lg p-6 border-2 border-blue-500">
+                            <h3 class="font-bold text-lg mb-3 text-blue-300">Monte Carlo Best</h3>
+                            <div id="comparisonMonteCarlo" class="space-y-2 text-sm">
+                                <p>Click "Compare All" to see results</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <button id="compareAllBtn" class="gradient-bg hover:opacity-90 text-white font-semibold px-6 py-3 rounded-lg transition duration-200 flex items-center gap-2 mx-auto">
+                        <i data-lucide="git-compare" class="w-5 h-5"></i>
+                        Compare All Strategies
+                    </button>
+                    
+                    <div id="comparisonChart" class="mt-8" style="height: 400px;"></div>
+                </div>
+            </div>
+
+            <!-- Risk Analytics Tab -->
+            <div id="analytics-tab" class="tab-pane hidden">
+                <div class="bg-gray-800 rounded-b-lg p-6 card-shadow">
+                    <h2 class="text-2xl font-bold mb-6 text-purple-400">Advanced Risk Analytics</h2>
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        <div class="bg-gray-700 rounded-lg p-6">
+                            <h3 class="font-bold text-lg mb-4 text-purple-300 flex items-center">
+                                <i data-lucide="shield" class="w-5 h-5 mr-2"></i>
+                                Risk Metrics
+                            </h3>
+                            <div id="riskMetrics" class="space-y-4">
+                                <p class="text-gray-400">Run optimization to see risk metrics</p>
+                            </div>
+                        </div>
+                        
+                        <div class="bg-gray-700 rounded-lg p-6">
+                            <h3 class="font-bold text-lg mb-4 text-purple-300 flex items-center">
+                                <i data-lucide="percent" class="w-5 h-5 mr-2"></i>
+                                Diversification Score
+                            </h3>
+                            <div id="diversificationScore">
+                                <canvas id="diversificationChart" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Correlation Matrix Tab -->
+            <div id="correlation-tab" class="tab-pane hidden">
+                <div class="bg-gray-800 rounded-b-lg p-6 card-shadow">
+                    <h2 class="text-2xl font-bold mb-6 text-purple-400">Asset Correlation Matrix</h2>
+                    
+                    <button id="loadCorrelationBtn" class="gradient-bg hover:opacity-90 text-white font-semibold px-6 py-3 rounded-lg transition duration-200 flex items-center gap-2 mb-6">
+                        <i data-lucide="refresh-cw" class="w-5 h-5"></i>
+                        Load Correlation Data
+                    </button>
+                    
+                    <div id="correlationContainer" class="flex flex-col items-center justify-center bg-gray-900 rounded-lg border border-gray-700" style="height: 600px;">
+                        <img id="correlationImage" alt="Correlation heatmap" class="max-h-full max-w-full object-contain hidden" />
+                        <p id="correlationPlaceholder" class="text-gray-400 text-center px-6">Click "Load Correlation Data" to visualize asset correlations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Loading Indicator -->
+        <div id="loadingIndicator" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-8 card-shadow flex flex-col items-center gap-4">
+                <div class="loading-spinner"></div>
+                <span class="text-lg font-semibold" id="loadingText">Optimizing portfolio...</span>
+            </div>
+        </div>
+
+        <!-- Settings Modal -->
+        <div id="settingsModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50">
+            <div class="bg-gray-800 rounded-lg p-8 card-shadow max-w-md w-full mx-4">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">Settings</h2>
+                    <button id="closeSettingsBtn" class="text-gray-400 hover:text-white">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div class="space-y-4">
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">Available Tickers</label>
+                        <p id="availableTickers" class="text-sm text-gray-400 bg-gray-700 rounded p-3">Loading...</p>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-semibold mb-2">API Endpoint</label>
+                        <input type="text" id="apiEndpoint" value="http://localhost:5000" class="w-full px-4 py-2 bg-gray-700 text-gray-100 rounded-lg border border-gray-600">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- History Modal -->
+        <div id="historyModal" class="hidden fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-50 overflow-y-auto">
+            <div class="bg-gray-800 rounded-lg p-8 card-shadow max-w-4xl w-full mx-4 my-8">
+                <div class="flex items-center justify-between mb-6">
+                    <h2 class="text-2xl font-bold text-purple-400">Optimization History</h2>
+                    <button id="closeHistoryBtn" class="text-gray-400 hover:text-white">
+                        <i data-lucide="x" class="w-6 h-6"></i>
+                    </button>
+                </div>
+                <div id="historyContent" class="space-y-4 max-h-96 overflow-y-auto">
+                    <p class="text-gray-400">Loading history...</p>
+                </div>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="container mx-auto max-w-7xl px-4 py-8 mt-12 text-center text-gray-500 text-sm border-t border-gray-800">
+        <p class="mb-2">Advanced Portfolio Theory Optimizer with Python Backend</p>
+        <p class="flex items-center justify-center gap-4 flex-wrap">
+            <span>• Flask API</span>
+            <span>• NumPy & Pandas</span>
+            <span>• SciPy Optimization</span>
+            <span>• SQLite Database</span>
+            <span>• Monte Carlo Simulation</span>
+        </p>
+    </footer>
+
+    <script>
+        // Initialize Lucide icons
+        lucide.createIcons();
+
+        // Global state
+        const state = {
+            apiEndpoint: 'http://localhost:5000',
+            currentResults: null,
+            currentTickers: [],
+            weightsChart: null,
+            diversificationChart: null,
+            chartImageData: null,
+            correlationImageData: null
+        };
+
+        // Utility Functions
+        function showNotification(message, type = 'info') {
+            const container = document.getElementById('notificationsContainer');
+            const notif = document.createElement('div');
+            const colors = {
+                'success': 'bg-green-600',
+                'error': 'bg-red-600',
+                'info': 'bg-blue-600',
+                'warning': 'bg-yellow-600'
+            };
+            
+            notif.className = `notification ${colors[type]} text-white px-6 py-4 rounded-lg shadow-xl flex items-center gap-3`;
+            notif.innerHTML = `
+                <i data-lucide="${type === 'error' ? 'alert-circle' : type === 'success' ? 'check-circle' : 'info'}" class="w-5 h-5"></i>
+                <span>${message}</span>
+            `;
+            
+            container.appendChild(notif);
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                notif.style.transition = 'opacity 0.3s';
+                notif.style.opacity = '0';
+                setTimeout(() => notif.remove(), 300);
+            }, 4000);
+        }
+
+        function showError(message) {
+            const errorMessage = document.getElementById('errorMessage');
+            const errorText = document.getElementById('errorText');
+            errorText.textContent = message;
+            errorMessage.classList.remove('hidden');
+            lucide.createIcons();
+            
+            setTimeout(() => {
+                errorMessage.classList.add('hidden');
+            }, 8000);
+        }
+
+        function showLoading(show, text = 'Optimizing portfolio...') {
+            const loadingIndicator = document.getElementById('loadingIndicator');
+            const loadingText = document.getElementById('loadingText');
+            loadingText.textContent = text;
+            
+            if (show) {
+                loadingIndicator.classList.remove('hidden');
+            } else {
+                loadingIndicator.classList.add('hidden');
+            }
+        }
+
+        // Tab Management
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.dataset.tab;
+                
+                // Update active tab button
+                document.querySelectorAll('.tab-btn').forEach(b => {
+                    b.classList.remove('tab-active');
+                    b.classList.add('text-gray-400');
+                });
+                btn.classList.add('tab-active');
+                btn.classList.remove('text-gray-400');
+                
+                // Show corresponding tab pane
+                document.querySelectorAll('.tab-pane').forEach(pane => {
+                    pane.classList.add('hidden');
+                });
+                document.getElementById(`${tabName}-tab`).classList.remove('hidden');
+                
+                lucide.createIcons();
+            });
+        });
+
+        // API Functions with comprehensive error handling
+        async function apiRequest(endpoint, options = {}) {
+            try {
+                const response = await fetch(`${state.apiEndpoint}${endpoint}`, {
+                    headers: {
+                        'Content-Type': 'application/json',
+                        ...options.headers
+                    },
+                    ...options
+                });
+                
+                if (!response.ok) {
+                    const errorData = await response.json().catch(() => ({}));
+                    throw new Error(errorData.error || `HTTP error! status: ${response.status}`);
+                }
+                
+                const data = await response.json();
+                
+                if (!data || data.success === false) {
+                    throw new Error(data?.error || 'Invalid response from server');
+                }
+                
+                return data;
+            } catch (error) {
+                console.error('API Request Error:', error);
+                if (error.message.includes('Failed to fetch')) {
+                    throw new Error('Cannot connect to server. Make sure Flask backend is running on port 5000.');
+                }
+                throw error;
+            }
+        }
+
+        // Main optimization function
+        async function optimizePortfolio() {
+            try {
+                showLoading(true);
+                
+                const tickers = document.getElementById('tickerInput').value
+                    .split(',')
+                    .map(t => t.trim().toUpperCase())
+                    .filter(t => t);
+                
+                if (tickers.length < 2) {
+                    throw new Error('Please enter at least 2 stock tickers');
+                }
+                
+                const strategy = document.getElementById('strategySelect').value;
+                const riskFreeRate = parseFloat(document.getElementById('riskFreeRate').value) / 100;
+                const numSimulations = parseInt(document.getElementById('numSimulations').value);
+                
+                if (isNaN(riskFreeRate) || riskFreeRate < 0) {
+                    throw new Error('Invalid risk-free rate');
+                }
+                
+                if (isNaN(numSimulations) || numSimulations < 1000) {
+                    throw new Error('Number of simulations must be at least 1000');
+                }
+                
+                const data = await apiRequest('/api/optimize', {
+                    method: 'POST',
+                    body: JSON.stringify({
+                        tickers,
+                        strategy,
+                        risk_free_rate: riskFreeRate,
+                        num_simulations: numSimulations
+                    })
+                });
+                
+                // Check if data has required properties with comprehensive error handling
+                if (!data.optimal) {
+                    throw new Error('Server response missing optimal portfolio data');
+                }
+                
+                if (!data.optimal.return || !data.optimal.volatility || !data.optimal.sharpe) {
+                    throw new Error('Invalid optimal portfolio data structure');
+                }
+                
+                state.currentResults = data;
+                state.currentTickers = data.tickers || tickers;
+                
+                displayResults(data);
+                showNotification('Portfolio optimized successfully!', 'success');
+                
+            } catch (error) {
+                console.error('Optimization Error:', error);
+                showError(error.message);
+                showNotification(error.message, 'error');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Display results with error handling
+        function displayResults(data) {
+            try {
+                if (!data || !data.optimal) {
+                    throw new Error('No results to display');
+                }
+                
+                const { optimal, tickers, strategy, chart_image } = data;
+                
+                // Validate optimal data structure
+                if (!optimal.return || !optimal.volatility || !optimal.sharpe || !optimal.weights) {
+                    throw new Error('Incomplete optimal portfolio data');
+                }
+                
+                // Display key metrics
+                document.getElementById('metricReturn').textContent = `${(optimal.return * 100).toFixed(2)}%`;
+                document.getElementById('metricVolatility').textContent = `${(optimal.volatility * 100).toFixed(2)}%`;
+                document.getElementById('metricSharpe').textContent = optimal.sharpe.toFixed(3);
+                
+                const strategyNames = {
+                    'max_sharpe': 'Max Sharpe',
+                    'min_volatility': 'Min Volatility',
+                    'monte_carlo': 'Monte Carlo'
+                };
+                document.getElementById('metricStrategy').textContent = strategyNames[strategy] || strategy;
+                
+                // Display optimal weights
+                const weightsContainer = document.getElementById('optimalWeights');
+                weightsContainer.innerHTML = '';
+                
+                const weightsData = {
+                    labels: [],
+                    values: []
+                };
+                
+                Object.entries(optimal.weights).forEach(([ticker, weight]) => {
+                    const weightEl = document.createElement('div');
+                    weightEl.className = 'bg-gray-700 rounded-lg p-3';
+                    weightEl.innerHTML = `
+                        <div class="flex justify-between items-center mb-2">
+                            <span class="font-semibold text-lg">${ticker}</span>
+                            <span class="text-purple-400 font-bold text-lg">${(weight * 100).toFixed(2)}%</span>
+                        </div>
+                        <div class="w-full bg-gray-600 rounded-full h-2">
+                            <div class="bg-gradient-to-r from-purple-500 to-pink-500 h-2 rounded-full" style="width: ${(weight * 100)}%"></div>
+                        </div>
+                    `;
+                    weightsContainer.appendChild(weightEl);
+                    
+                    weightsData.labels.push(ticker);
+                    weightsData.values.push((weight * 100).toFixed(2));
+                });
+                
+                // Create weights pie chart
+                createWeightsChart(weightsData);
+                
+                // Update backend-rendered chart
+                state.chartImageData = chart_image || null;
+                updateChartImage(state.chartImageData);
+                
+                // Show results section
+                document.getElementById('resultsSection').classList.remove('hidden');
+                
+                // Update risk analytics
+                updateRiskAnalytics(optimal, tickers);
+                
+            } catch (error) {
+                console.error('Display Error:', error);
+                showError(`Error displaying results: ${error.message}`);
+            }
+        }
+
+        function createWeightsChart(data) {
+            const ctx = document.getElementById('weightsChart');
+            if (!ctx) return;
+            
+            if (state.weightsChart) {
+                state.weightsChart.destroy();
+            }
+            
+            state.weightsChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: data.labels,
+                    datasets: [{
+                        data: data.values,
+                        backgroundColor: [
+                            '#8b5cf6', '#ec4899', '#f59e0b', '#10b981', 
+                            '#3b82f6', '#6366f1', '#f97316', '#14b8a6'
+                        ],
+                        borderWidth: 2,
+                        borderColor: '#1f2937'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                color: '#e5e7eb',
+                                padding: 10,
+                                font: { size: 11 }
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => `${context.label}: ${context.parsed}%`
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        function updateChartImage(imageData) {
+            const imgEl = document.getElementById('chartImage');
+            const placeholder = document.getElementById('chartPlaceholder');
+            const downloadBtn = document.getElementById('downloadChartBtn');
+
+            if (imageData) {
+                imgEl.src = `data:image/png;base64,${imageData}`;
+                imgEl.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+                downloadBtn.classList.remove('hidden');
+            } else {
+                imgEl.src = '';
+                imgEl.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+                downloadBtn.classList.add('hidden');
+            }
+        }
+
+        // Compare all strategies
+        document.getElementById('compareAllBtn')?.addEventListener('click', async () => {
+            try {
+                showLoading(true, 'Comparing strategies...');
+                
+                const tickers = document.getElementById('tickerInput').value
+                    .split(',')
+                    .map(t => t.trim().toUpperCase())
+                    .filter(t => t);
+                
+                const riskFreeRate = parseFloat(document.getElementById('riskFreeRate').value) / 100;
+                const numSimulations = parseInt(document.getElementById('numSimulations').value);
+                
+                const strategies = ['max_sharpe', 'min_volatility', 'monte_carlo'];
+                const results = [];
+                
+                for (const strategy of strategies) {
+                    const data = await apiRequest('/api/optimize', {
+                        method: 'POST',
+                        body: JSON.stringify({
+                            tickers,
+                            strategy,
+                            risk_free_rate: riskFreeRate,
+                            num_simulations: numSimulations
+                        })
+                    });
+                    results.push({ strategy, data });
+                }
+                
+                displayComparison(results);
+                showNotification('Strategy comparison completed', 'success');
+                
+            } catch (error) {
+                console.error('Comparison Error:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function displayComparison(results) {
+            const containers = {
+                'max_sharpe': document.getElementById('comparisonMaxSharpe'),
+                'min_volatility': document.getElementById('comparisonMinVol'),
+                'monte_carlo': document.getElementById('comparisonMonteCarlo')
+            };
+            
+            results.forEach(({ strategy, data }) => {
+                const container = containers[strategy];
+                if (!container || !data.optimal) return;
+                
+                const { optimal } = data;
+                container.innerHTML = `
+                    <div class="space-y-2">
+                        <p><strong>Return:</strong> ${(optimal.return * 100).toFixed(2)}%</p>
+                        <p><strong>Volatility:</strong> ${(optimal.volatility * 100).toFixed(2)}%</p>
+                        <p><strong>Sharpe:</strong> ${optimal.sharpe.toFixed(3)}</p>
+                        <div class="mt-3 pt-3 border-t border-gray-600">
+                            <p class="text-xs font-semibold mb-2">Weights:</p>
+                            ${Object.entries(optimal.weights)
+                                .map(([ticker, weight]) => `<p class="text-xs">${ticker}: ${(weight * 100).toFixed(1)}%</p>`)
+                                .join('')}
+                        </div>
+                    </div>
+                `;
+            });
+        }
+
+        // Load correlation matrix
+        document.getElementById('loadCorrelationBtn')?.addEventListener('click', async () => {
+            try {
+                showLoading(true, 'Loading correlation data...');
+                
+                const tickers = document.getElementById('tickerInput').value
+                    .split(',')
+                    .map(t => t.trim().toUpperCase())
+                    .filter(t => t);
+                
+                const data = await apiRequest('/api/correlation', {
+                    method: 'POST',
+                    body: JSON.stringify({ tickers })
+                });
+                
+                if (!data.chart_image) {
+                    throw new Error('No correlation visualization received');
+                }
+
+                displayCorrelationMatrix(data.chart_image);
+                showNotification('Correlation matrix loaded', 'success');
+                
+            } catch (error) {
+                console.error('Correlation Error:', error);
+                showError(error.message);
+            } finally {
+                showLoading(false);
+            }
+        });
+
+        function displayCorrelationMatrix(imageData) {
+            const imgEl = document.getElementById('correlationImage');
+            const placeholder = document.getElementById('correlationPlaceholder');
+
+            state.correlationImageData = imageData || null;
+
+            if (imageData) {
+                imgEl.src = `data:image/png;base64,${imageData}`;
+                imgEl.classList.remove('hidden');
+                placeholder.classList.add('hidden');
+            } else {
+                imgEl.src = '';
+                imgEl.classList.add('hidden');
+                placeholder.classList.remove('hidden');
+            }
+        }
+
+        function updateRiskAnalytics(optimal, tickers) {
+            const container = document.getElementById('riskMetrics');
+            const diversificationScore = calculateDiversificationScore(optimal.weights);
+            
+            container.innerHTML = `
+                <div class="space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span>Value at Risk (95%):</span>
+                        <span class="font-bold text-red-400">${(optimal.volatility * 1.65 * 100).toFixed(2)}%</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Diversification Score:</span>
+                        <span class="font-bold text-green-400">${diversificationScore}/100</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Number of Assets:</span>
+                        <span class="font-bold">${tickers.length}</span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <span>Max Single Position:</span>
+                        <span class="font-bold text-yellow-400">${(Math.max(...Object.values(optimal.weights)) * 100).toFixed(2)}%</span>
+                    </div>
+                </div>
+            `;
+            
+            createDiversificationChart(diversificationScore);
+        }
+
+        function calculateDiversificationScore(weights) {
+            const values = Object.values(weights);
+            const n = values.length;
+            const idealWeight = 1 / n;
+            
+            let totalDeviation = 0;
+            values.forEach(w => {
+                totalDeviation += Math.abs(w - idealWeight);
+            });
+            
+            const maxDeviation = 2 * (1 - idealWeight);
+            const score = Math.max(0, 100 * (1 - totalDeviation / maxDeviation));
+            
+            return Math.round(score);
+        }
+
+        function createDiversificationChart(score) {
+            const ctx = document.getElementById('diversificationChart');
+            if (!ctx) return;
+            
+            if (state.diversificationChart) {
+                state.diversificationChart.destroy();
+            }
+            
+            state.diversificationChart = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    datasets: [{
+                        data: [score, 100 - score],
+                        backgroundColor: ['#10b981', '#374151'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '75%',
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: { enabled: false }
+                    }
+                },
+                plugins: [{
+                    id: 'centerText',
+                    beforeDraw: (chart) => {
+                        const { ctx, width, height } = chart;
+                        ctx.restore();
+                        const fontSize = (height / 114).toFixed(2);
+                        ctx.font = `bold ${fontSize}em Inter`;
+                        ctx.textBaseline = 'middle';
+                        ctx.fillStyle = '#10b981';
+                        const text = `${score}`;
+                        const textX = Math.round((width - ctx.measureText(text).width) / 2);
+                        const textY = height / 2;
+                        ctx.fillText(text, textX, textY);
+                        ctx.save();
+                    }
+                }]
+            });
+        }
+
+        // Load optimization history
+        async function loadHistory() {
+            try {
+                const data = await apiRequest('/api/history');
+                const container = document.getElementById('historyContent');
+                
+                if (!data.history || data.history.length === 0) {
+                    container.innerHTML = '<p class="text-gray-400">No optimization history found.</p>';
+                    return;
+                }
+                
+                container.innerHTML = data.history.map(item => `
+                    <div class="bg-gray-700 rounded-lg p-4">
+                        <div class="flex justify-between items-start mb-2">
+                            <span class="font-semibold">${item.tickers.join(', ')}</span>
+                            <span class="text-xs text-gray-400">${new Date(item.timestamp).toLocaleString()}</span>
+                        </div>
+                        <div class="grid grid-cols-3 gap-2 text-sm">
+                            <div><span class="text-gray-400">Return:</span> <strong>${(item.expected_return * 100).toFixed(2)}%</strong></div>
+                            <div><span class="text-gray-400">Vol:</span> <strong>${(item.volatility * 100).toFixed(2)}%</strong></div>
+                            <div><span class="text-gray-400">Sharpe:</span> <strong>${item.sharpe_ratio.toFixed(3)}</strong></div>
+                        </div>
+                    </div>
+                `).join('');
+                
+            } catch (error) {
+                console.error('History Error:', error);
+                document.getElementById('historyContent').innerHTML = 
+                    `<p class="text-red-400">Error loading history: ${error.message}</p>`;
+            }
+        }
+
+        // Load available tickers
+        async function loadAvailableTickers() {
+            try {
+                const data = await apiRequest('/api/tickers');
+                document.getElementById('availableTickers').textContent = data.tickers.join(', ');
+            } catch (error) {
+                console.error('Tickers Error:', error);
+                document.getElementById('availableTickers').textContent = 'Error loading tickers';
+            }
+        }
+
+        // Event Listeners
+        document.getElementById('calculateBtn').addEventListener('click', optimizePortfolio);
+        
+        document.getElementById('tickerInput').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') optimizePortfolio();
+        });
+
+        document.getElementById('settingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.remove('hidden');
+            loadAvailableTickers();
+        });
+
+        document.getElementById('downloadChartBtn')?.addEventListener('click', () => {
+            if (!state.chartImageData) {
+                showNotification('No chart available to download yet.', 'warning');
+                return;
+            }
+
+            const link = document.createElement('a');
+            link.href = `data:image/png;base64,${state.chartImageData}`;
+            link.download = `efficient_frontier_${new Date().toISOString().slice(0, 10)}.png`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        });
+
+        document.getElementById('closeSettingsBtn').addEventListener('click', () => {
+            document.getElementById('settingsModal').classList.add('hidden');
+        });
+
+        document.getElementById('historyBtn').addEventListener('click', () => {
+            document.getElementById('historyModal').classList.remove('hidden');
+            loadHistory();
+        });
+
+        document.getElementById('closeHistoryBtn').addEventListener('click', () => {
+            document.getElementById('historyModal').classList.add('hidden');
+        });
+
+        document.getElementById('downloadBtn')?.addEventListener('click', () => {
+            if (!state.currentResults) {
+                showNotification('No results to export', 'warning');
+                return;
+            }
+            
+            const dataStr = JSON.stringify(state.currentResults, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `portfolio_optimization_${new Date().toISOString().slice(0, 10)}.json`;
+            link.click();
+            URL.revokeObjectURL(url);
+            showNotification('Results exported successfully', 'success');
+        });
+
+        // Initialize on load
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            console.log('🚀 Advanced Portfolio Optimizer initialized');
+            console.log('📊 Make sure Flask backend is running on http://localhost:5000');
+        });
+    </script>
+
+</body>
+</html>

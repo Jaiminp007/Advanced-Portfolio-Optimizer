@@ -75,15 +75,19 @@ Navigate to `http://localhost:5000`
 
 ## 📊 Available Stock Tickers
 
-The application includes historical data for:
+Historical prices are fetched on-demand from Yahoo Finance via [`yfinance`](https://pypi.org/project/yfinance/). The dashboard suggests a curated starter list, but you can request any symbols supported by Yahoo Finance:
 - **AAPL** - Apple Inc.
 - **MSFT** - Microsoft Corporation
-- **GOOG** - Alphabet Inc.
+- **GOOGL** - Alphabet Inc.
 - **AMZN** - Amazon.com Inc.
 - **TSLA** - Tesla Inc.
 - **NVDA** - NVIDIA Corporation
 - **JPM** - JPMorgan Chase & Co.
 - **V** - Visa Inc.
+- **META** - Meta Platforms Inc.
+- **NFLX** - Netflix Inc.
+
+> 💡 Tip: mix in ETFs (e.g., `SPY`, `QQQ`) or sector funds to explore diversified allocations.
 
 ## 🔧 API Endpoints
 
@@ -139,7 +143,7 @@ GET /api/tickers
 ## 📈 How It Works
 
 ### 1. Data Processing
-- Loads historical price data (252 trading days)
+- Downloads up to five years of adjusted closing prices via yfinance (configurable per request)
 - Calculates logarithmic daily returns
 - Computes annualized mean returns and covariance matrix
 
